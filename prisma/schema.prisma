@@ -19,6 +19,8 @@ model User {
   updatedAt DateTime @updatedAt
   name      String   @unique
   password  String
+
+  Product Product[]
 }
 
 model BlackList_access_token {
@@ -33,4 +35,17 @@ model BlackList_refresh_token {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   refreshToken String   @unique
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @unique
+  description String?
+  price       Float
+  stock       Int
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 }
