@@ -17,5 +17,4 @@ export class AuthController {
     // Implement signup logic here
     return this.authService.signup(dto);
   }
-  
 }
