@@ -1,7 +1,7 @@
 import {
   Injectable,
   NotFoundException,
-  ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductDto } from './dto';
@@ -43,7 +43,9 @@ export class ProductService {
       } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
           if (error.code === 'P2002') {
-            throw new ForbiddenException('name of product taken');
+            throw new ConflictException(
+              'Product name already exists for this user. Please use a different name.',
+            );
           }
         }
         throw error;
