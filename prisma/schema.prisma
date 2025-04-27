@@ -38,14 +38,19 @@ model BlackList_refresh_token {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int      @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  name        String   @unique
+  name        String   
   description String?
   price       Float
   stock       Int
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+  
+  // Define a composite primary key using both id and userId
+  @@id([id, userId])
+  // We still want name to be unique per user
+  @@unique([name, userId])
 }
