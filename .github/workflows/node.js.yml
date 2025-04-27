@@ -64,38 +64,8 @@ jobs:
 
         echo "version=$NEW_VERSION" >> $GITHUB_ENV
     
-    - name: Create and push version branch
+    - name: Commit and push version bump
       run: |
-        git checkout -b bump-version-v${{ steps.bump_version.outputs.version }}
         git add VERSION
         git commit -m "chore: bump version to v${{ steps.bump_version.outputs.version }}"
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:bump-version-v${{ steps.bump_version.outputs.version }}
-
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v6
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        title: "chore: bump version to v${{ steps.bump_version.outputs.version }}"
-        body: "Automated PR to bump version to v${{ steps.bump_version.outputs.version }}"
-        base: main
-        branch: bump-version-v${{ steps.bump_version.outputs.version }}
-
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: "v${{ steps.bump_version.outputs.version }}"
-        name: "v${{ steps.bump_version.outputs.version }}"
-        body: "Automated release for version v${{ steps.bump_version.outputs.version }}"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Update README version badge (optional)
-      run: |
-        if grep -q "version-" README.md; then
-          sed -i -E "s/version-[0-9]+\.[0-9]+\.[0-9]+-blue/version-${{ env.version }}-blue/" README.md
-          git add README.md
-          git commit -m "chore: update version badge to v${{ env.version }}"
-          git push
-        else
-          echo "No version badge found to update."
-        fi
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
