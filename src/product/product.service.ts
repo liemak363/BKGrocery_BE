@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductDto } from './dto';
 
@@ -50,5 +54,39 @@ export class ProductService {
         product: updatedProduct,
       };
     }
+  }
+
+  async getProductById(id: number, userId: number) {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // Check if the product belongs to the user
+    if (product.userId !== userId) {
+      throw new ForbiddenException('Access to this product is forbidden');
+    }
+
+    return product;
+  }
+
+  async getProductByName(name: string, userId: number) {
+    const product = await this.prisma.product.findUnique({
+      where: { name },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with name '${name}' not found`);
+    }
+
+    // Check if the product belongs to the user
+    if (product.userId !== userId) {
+      throw new ForbiddenException('Access to this product is forbidden');
+    }
+
+    return product;
   }
 }
