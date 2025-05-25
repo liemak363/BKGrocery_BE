@@ -1,6 +1,7 @@
 import {
   ConflictException,
   ForbiddenException,
+  BadRequestException,
   Injectable,
 } from '@nestjs/common';
 import { AuthDto } from './dto';
@@ -63,6 +64,90 @@ export class AuthService {
     return this.signToken(user.id, user.name);
   }
 
+  async logout(refresh_token: string, access_token: string, userId: number) {
+    // Parse refresh token to get userId if refresh_token exists
+    console.log('Logout called with:', {
+      refresh_token,
+      access_token,
+      userId,
+    });
+
+    if (refresh_token && refresh_token !== '') {
+      try {
+        const secretRefresh = this.config.get<string>('JWT_SECRET_REFRESH');
+        const decoded = await this.jwt.verifyAsync<{
+          sub: number;
+          name: string;
+        }>(refresh_token, {
+          secret: secretRefresh,
+        });
+
+        // Verify that the refresh token belongs to the same user
+        if (decoded.sub !== userId) {
+          throw new ForbiddenException('Invalid refresh token');
+        }
+
+        // Add the refresh token to the blacklist
+        await this.prisma.blackList_refresh_token.create({
+          data: {
+            refreshToken: refresh_token,
+          },
+        });
+      } catch (error) {
+        // If token is invalid or verification fails, we don't add it to blacklist
+        if (error && typeof error === 'object' && 'message' in error) {
+          console.error(
+            'Invalid refresh token:',
+            (error as { message: string }).message,
+          );
+        } else {
+          console.error('Invalid refresh token:', error);
+        }
+      }
+    }
+
+    // Add the access token to the blacklist
+    await this.prisma.blackList_access_token.create({
+      data: {
+        accessToken: access_token,
+      },
+    });
+
+    return { message: 'Logout successful' };
+  }
+
+  async newAccessToken(refresh_token: string) {
+    if (!refresh_token || refresh_token === '') {
+      throw new BadRequestException('Refresh token is required');
+    }
+
+    const secretRefresh = this.config.get<string>('JWT_SECRET_REFRESH');
+    let decoded: { sub: number; name: string };
+    try {
+      // Verify the refresh token
+      decoded = await this.jwt.verifyAsync<{
+        sub: number;
+        name: string;
+      }>(refresh_token, {
+        secret: secretRefresh,
+      });
+    } catch (error) {
+      console.error('Error verifying refresh token:', error);
+      throw new BadRequestException('Invalid refresh token');
+    }
+
+    // Check if the refresh token is blacklisted
+    const isBlacklisted = await this.prisma.blackList_refresh_token.findUnique({
+      where: { refreshToken: refresh_token },
+    });
+
+    if (isBlacklisted) {
+      throw new ForbiddenException('Refresh token is blacklisted');
+    }
+
+    return this.signNewAccessToken(decoded.sub, decoded.name);
+  }
+
   async signToken(
     userId: number,
     name: string,
@@ -94,6 +179,22 @@ export class AuthService {
       id: payload.sub,
       access_token: access_token,
       refresh_token: refresh_token,
+    };
+  }
+
+  async signNewAccessToken(userId: number, name: string) {
+    const payload = {
+      sub: userId,
+      name,
+    };
+    const secret = this.config.get<string>('JWT_SECRET');
+    const access_token = await this.jwt.signAsync(payload, {
+      expiresIn: '2h',
+      secret: secret, // the secret key for signing the JWT, not protecting payload
+    });
+
+    return {
+      access_token: access_token,
     };
   }
 }
