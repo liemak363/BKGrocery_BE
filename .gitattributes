@@ -21,3 +21,6 @@
 *.gif binary
 *.ico binary
 *.pdf binary
+
+# Set default behavior to automatically normalize line endings
+* text=auto eol=lf

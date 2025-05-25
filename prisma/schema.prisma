@@ -20,7 +20,9 @@ model User {
   name      String   @unique
   password  String
 
-  Product Product[]
+  Product   Product[]
+  ImportLog ImportLog[]
+  SaleLog   SaleLog[]
 }
 
 model BlackList_access_token {
@@ -41,16 +43,55 @@ model Product {
   id          Int      @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  name        String   
+  name        String
   description String?
   price       Float
   stock       Int
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-  
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  ImportLog   ImportLog[]
+  SaleLogItem SaleLogItem[]
+
   // Define a composite primary key using both id and userId
   @@id([id, userId])
   // We still want name to be unique per user
   @@unique([name, userId])
+}
+
+model ImportLog {
+  id          Int      @id @default(autoincrement())
+  quantity    Int      @default(0)
+  price       Float
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  productId   Int
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  product     Product  @relation(fields: [productId, userId], references: [id, userId])
+}
+
+model SaleLog {
+  id          Int           @id @default(autoincrement())
+  total       Float
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  SaleLogItem SaleLogItem[]
+}
+
+model SaleLogItem {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  saleLogId Int
+  productId Int
+  price     Float
+  quantity  Int
+  product   Product  @relation(fields: [productId, saleLogId], references: [id, userId])
+  saleLog   SaleLog  @relation(fields: [saleLogId], references: [id])
+
+  // Define a composite primary key using saleLogId, productId
+  @@id([saleLogId, productId])
 }
