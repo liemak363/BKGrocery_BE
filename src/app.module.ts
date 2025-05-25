@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -7,6 +12,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProductModule } from './product/product.module';
 import { UserModule } from './user/user.module';
 import { SseModule } from './sse/sse.module';
+import { CheckBlacklistMiddleware } from './auth/middleware/check-blacklist.middleware';
+import { ProductController } from './product/product.controller';
+import { UserController } from './user/user.controller';
+import { SseController } from './sse/sse.controller';
 
 @Module({
   imports: [
@@ -22,4 +31,13 @@ import { SseModule } from './sse/sse.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(CheckBlacklistMiddleware)
+      .forRoutes(ProductController, UserController, SseController, {
+        path: 'auth/logout',
+        method: RequestMethod.POST,
+      });
+  }
+}
