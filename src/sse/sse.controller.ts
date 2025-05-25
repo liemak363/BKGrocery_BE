@@ -39,7 +39,7 @@ export class SseController {
 
   @UseGuards(JwtGuard)
   @ApiBearerAuth('access-token')
-  @Sse('events')
+  @Sse()
   sse(@Req() req: Request) {
     console.log('Request Headers sse/events:', req.user);
     return this.sseService.addClient(req.user as number);
