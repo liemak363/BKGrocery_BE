@@ -111,4 +111,43 @@ export class ProductService {
 
     return product;
   }
+
+  async getAllProducts(userId: number, lastTimeSync?: string) {
+    // Define the where condition with proper typing
+    const whereCondition: {
+      userId: number;
+      updatedAt?: { gt: Date };
+    } = {
+      userId,
+    };
+
+    // If lastTimeSync is provided, filter products updated after that time
+    if (lastTimeSync) {
+      try {
+        const lastTimeSyncDate = new Date(lastTimeSync);
+
+        // Check if the date is valid
+        if (isNaN(lastTimeSyncDate.getTime())) {
+          throw new Error('Invalid date format');
+        }
+
+        whereCondition.updatedAt = {
+          gt: lastTimeSyncDate,
+        };
+      } catch {
+        throw new Error(
+          'Invalid lastTimeSync format. Please provide a valid date string.',
+        );
+      }
+    }
+
+    const products = await this.prisma.product.findMany({
+      where: whereCondition,
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    return products;
+  }
 }

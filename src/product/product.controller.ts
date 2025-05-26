@@ -5,8 +5,10 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Req,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ProductService } from './product.service';
@@ -18,6 +20,7 @@ import {
   ApiBody,
   ApiResponse,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 
 @ApiTags('product')
@@ -102,5 +105,51 @@ export class ProductController {
       throw new Error('Invalid user or user ID');
     }
     return this.productService.getProductByName(name, req.user);
+  }
+
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description:
+      'Lấy tất cả sản phẩm của người dùng có updatedAt lớn hơn lastTimeSync',
+    schema: {
+      example: [
+        {
+          id: 1,
+          createdAt: '2025-04-27T12:00:00.000Z',
+          updatedAt: '2025-04-27T12:00:00.000Z',
+          name: 'Táo đỏ Mỹ',
+          price: 100000,
+          stock: 10,
+          description: 'Táo đỏ nhập khẩu từ Mỹ',
+          userId: 1,
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid lastTimeSync format',
+  })
+  @ApiQuery({
+    name: 'lastTimeSync',
+    required: false,
+    description:
+      'Thời gian đồng bộ cuối cùng (ISO format). Nếu có, chỉ trả về sản phẩm được cập nhật sau thời gian này.',
+    type: String,
+  })
+  getAllProducts(
+    @Req() req: Request,
+    @Query('lastTimeSync') lastTimeSync?: string,
+  ) {
+    // validate lastTimeSync format
+    if (lastTimeSync && isNaN(Date.parse(lastTimeSync))) {
+      throw new BadRequestException('Invalid lastTimeSync format');
+    }
+
+    if (!req.user || typeof req.user !== 'number') {
+      throw new Error('Invalid user or user ID');
+    }
+    return this.productService.getAllProducts(req.user, lastTimeSync);
   }
 }
