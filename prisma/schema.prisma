@@ -84,8 +84,6 @@ model SaleLog {
 }
 
 model SaleLogItem {
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   saleLogId Int
   productId Int
   price     Float

@@ -39,10 +39,6 @@ export class ImportController {
       },
     },
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request - Invalid import data or missing required fields',
-  })
   importProducts(@Body() dto: ImportLogDto[], @Req() req: Request) {
     if (!req.user || typeof req.user !== 'number') {
       throw new BadRequestException('Invalid user or user ID');
