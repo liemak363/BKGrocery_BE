@@ -8,11 +8,10 @@ import {
   Query,
   Req,
   UseGuards,
-  BadRequestException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ProductService } from './product.service';
-import { ProductDto } from './dto';
+import { ProductDto, LastTimeSyncDto } from './dto';
 import { JwtGuard } from 'src/auth/guard';
 import {
   ApiTags,
@@ -20,7 +19,6 @@ import {
   ApiBody,
   ApiResponse,
   ApiParam,
-  ApiQuery,
 } from '@nestjs/swagger';
 
 @ApiTags('product')
@@ -131,22 +129,7 @@ export class ProductController {
     status: 400,
     description: 'Invalid lastTimeSync format',
   })
-  @ApiQuery({
-    name: 'lastTimeSync',
-    required: false,
-    description:
-      'Thời gian đồng bộ cuối cùng (ISO format). Nếu có, chỉ trả về sản phẩm được cập nhật sau thời gian này.',
-    type: String,
-  })
-  getAllProducts(
-    @Req() req: Request,
-    @Query('lastTimeSync') lastTimeSync?: string,
-  ) {
-    // validate lastTimeSync format
-    if (lastTimeSync && isNaN(Date.parse(lastTimeSync))) {
-      throw new BadRequestException('Invalid lastTimeSync format');
-    }
-
+  getAllProducts(@Req() req: Request, @Query() lastTimeSync: LastTimeSyncDto) {
     if (!req.user || typeof req.user !== 'number') {
       throw new Error('Invalid user or user ID');
     }

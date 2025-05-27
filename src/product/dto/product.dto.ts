@@ -5,8 +5,10 @@ import {
   IsString,
   Min,
   IsOptional,
+  IsDate,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class ProductDto {
   @ApiProperty({ example: 1, description: 'ID sản phẩm' })
@@ -42,4 +44,16 @@ export class ProductDto {
   @IsString()
   @IsOptional()
   description?: string;
+}
+
+export class LastTimeSyncDto {
+  @ApiProperty({
+    example: '2025-04-27T12:00:00.000Z',
+    description: 'Thời gian đồng bộ cuối cùng (ISO 8601 format)',
+    required: false,
+  })
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  lastTimeSync: Date;
 }

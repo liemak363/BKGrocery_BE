@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ProductDto } from './dto';
+import { ProductDto, LastTimeSyncDto } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -112,7 +112,7 @@ export class ProductService {
     return product;
   }
 
-  async getAllProducts(userId: number, lastTimeSync?: string) {
+  async getAllProducts(userId: number, lastTimeSync: LastTimeSyncDto) {
     // Define the where condition with proper typing
     const whereCondition: {
       userId: number;
@@ -122,15 +122,9 @@ export class ProductService {
     };
 
     // If lastTimeSync is provided, filter products updated after that time
-    if (lastTimeSync) {
+    if (lastTimeSync.lastTimeSync) {
+      const lastTimeSyncDate = lastTimeSync.lastTimeSync;
       try {
-        const lastTimeSyncDate = new Date(lastTimeSync);
-
-        // Check if the date is valid
-        if (isNaN(lastTimeSyncDate.getTime())) {
-          throw new Error('Invalid date format');
-        }
-
         whereCondition.updatedAt = {
           gt: lastTimeSyncDate,
         };
