@@ -16,6 +16,8 @@ import { CheckBlacklistMiddleware } from './auth/middleware/check-blacklist.midd
 import { ProductController } from './product/product.controller';
 import { UserController } from './user/user.controller';
 import { SseController } from './sse/sse.controller';
+import { ImportModule } from './import/import.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { SseController } from './sse/sse.controller';
     ProductModule,
     UserModule,
     SseModule,
+    ImportModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

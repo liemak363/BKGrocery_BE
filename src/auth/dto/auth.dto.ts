@@ -21,7 +21,7 @@ export class LogoutDto {
   })
   @IsOptional()
   @IsString()
-  refresh_token: string;
+  refresh_token?: string;
 }
 
 export class NewAccessTokenDto {
@@ -30,5 +30,6 @@ export class NewAccessTokenDto {
     description: 'refresh token',
   })
   @IsString()
+  @IsNotEmpty()
   refresh_token: string;
 }

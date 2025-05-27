@@ -61,6 +61,7 @@ model Product {
 
 model ImportLog {
   id          Int      @id @default(autoincrement())
+  name        String
   quantity    Int      @default(0)
   price       Float
   description String?

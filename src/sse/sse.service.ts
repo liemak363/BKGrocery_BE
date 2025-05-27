@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class SseService {
   private clients: Map<number, Subject<MessageEvent>> = new Map();
+
   constructor(
     private jwt: JwtService,
     private config: ConfigService,
@@ -18,10 +19,10 @@ export class SseService {
 
   onModuleInit() {
     this.eventEmitter.on(
-      'product.updated',
+      'products.updated',
       ({ userId, products }: { userId: number; products: unknown }) => {
         this.sendToUser(userId, {
-          event: 'product.updated',
+          event: 'products.updated',
           data: products,
         });
       },
@@ -29,7 +30,7 @@ export class SseService {
   }
 
   testSse(userId: number) {
-    this.eventEmitter.emit('product.updated', { userId, products: 'ok' });
+    this.eventEmitter.emit('products.updated', { userId, products: 'ok' });
   }
 
   addClient(userId: number) {

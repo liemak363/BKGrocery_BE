@@ -5,12 +5,13 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ProductService } from './product.service';
-import { ProductDto } from './dto';
+import { ProductDto, LastTimeSyncDto } from './dto';
 import { JwtGuard } from 'src/auth/guard';
 import {
   ApiTags,
@@ -102,5 +103,36 @@ export class ProductController {
       throw new Error('Invalid user or user ID');
     }
     return this.productService.getProductByName(name, req.user);
+  }
+
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description:
+      'Lấy tất cả sản phẩm của người dùng có updatedAt lớn hơn lastTimeSync',
+    schema: {
+      example: [
+        {
+          id: 1,
+          createdAt: '2025-04-27T12:00:00.000Z',
+          updatedAt: '2025-04-27T12:00:00.000Z',
+          name: 'Táo đỏ Mỹ',
+          price: 100000,
+          stock: 10,
+          description: 'Táo đỏ nhập khẩu từ Mỹ',
+          userId: 1,
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid lastTimeSync format',
+  })
+  getAllProducts(@Req() req: Request, @Query() lastTimeSync: LastTimeSyncDto) {
+    if (!req.user || typeof req.user !== 'number') {
+      throw new Error('Invalid user or user ID');
+    }
+    return this.productService.getAllProducts(req.user, lastTimeSync);
   }
 }
