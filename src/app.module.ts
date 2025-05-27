@@ -16,8 +16,11 @@ import { CheckBlacklistMiddleware } from './auth/middleware/check-blacklist.midd
 import { ProductController } from './product/product.controller';
 import { UserController } from './user/user.controller';
 import { SseController } from './sse/sse.controller';
+import { ImportController } from './import/import.controller';
+import { SaleController } from './sale/sale.controller';
 import { ImportModule } from './import/import.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { SaleModule } from './sale/sale.module';
 
 @Module({
   imports: [
@@ -31,6 +34,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     SseModule,
     ImportModule,
     EventEmitterModule.forRoot(),
+    SaleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -39,9 +43,16 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(CheckBlacklistMiddleware)
-      .forRoutes(ProductController, UserController, SseController, {
-        path: 'auth/logout',
-        method: RequestMethod.POST,
-      });
+      .forRoutes(
+        ProductController,
+        UserController,
+        SseController,
+        ImportController,
+        SaleController,
+        {
+          path: 'auth/logout',
+          method: RequestMethod.POST,
+        },
+      );
   }
 }
