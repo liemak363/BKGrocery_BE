@@ -17,6 +17,7 @@ import { ProductController } from './product/product.controller';
 import { UserController } from './user/user.controller';
 import { SseController } from './sse/sse.controller';
 import { ImportModule } from './import/import.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ImportModule } from './import/import.module';
     UserModule,
     SseModule,
     ImportModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

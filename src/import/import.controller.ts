@@ -1,16 +1,55 @@
-import { Controller, UseGuards, Query, Get, Req } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  UseGuards,
+  Query,
+  Get,
+  Req,
+  Body,
+  Post,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/guard';
 import { ImportService } from './import.service';
 import { Request } from 'express';
-import { ImportLogQueryDto } from './dto/import.dto';
+import { ImportLogQueryDto, ImportLogDto } from './dto/import.dto';
 
 @ApiTags('import')
 @UseGuards(JwtGuard)
 @ApiBearerAuth('access-token')
 @Controller('import')
 export class ImportController {
-  constructor(private importService: ImportService) {}
+  private logger = new Logger(ImportController.name);
+
+  constructor(private importService: ImportService) {
+    this.logger.log('ImportController constructor called');
+  }
+
+  @Post()
+  @ApiBody({ type: ImportLogDto, isArray: true })
+  @ApiResponse({
+    status: 201,
+    description: 'Products imported successfully',
+    schema: {
+      example: {
+        message: 'Import successful',
+        productsCount: 2,
+        logsCount: 2,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Invalid import data or missing required fields',
+  })
+  importProducts(@Body() dto: ImportLogDto[], @Req() req: Request) {
+    if (!req.user || typeof req.user !== 'number') {
+      throw new BadRequestException('Invalid user or user ID');
+    }
+    this.logger.log(`importProducts endpoint called with user ID: ${req.user}`);
+    return this.importService.importProducts(dto, req.user);
+  }
 
   @Get('log')
   @ApiResponse({
@@ -38,7 +77,7 @@ export class ImportController {
   })
   getImportLogs(@Query() query: ImportLogQueryDto, @Req() req: Request) {
     if (!req.user || typeof req.user !== 'number') {
-      throw new Error('Invalid user or user ID');
+      throw new BadRequestException('Invalid user or user ID');
     }
     return this.importService.getImportLogs(req.user, query);
   }

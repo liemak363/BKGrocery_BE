@@ -1,12 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { SseController } from './sse.controller';
 import { SseService } from './sse.service';
 import { JwtModule } from '@nestjs/jwt';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 
+@Global()
 @Module({
   controllers: [SseController],
   providers: [SseService],
-  imports: [JwtModule.register({}), EventEmitterModule.forRoot()],
+  imports: [JwtModule.register({})],
+  exports: [SseService],
 })
 export class SseModule {}

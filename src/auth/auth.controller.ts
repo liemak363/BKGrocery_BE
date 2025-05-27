@@ -60,9 +60,9 @@ export class AuthController {
   ) {
     // Implement logout logic here
     return this.authService.logout(
-      dto.refresh_token || '',
       req.user.access_token,
       req.user.id,
+      dto.refresh_token,
     );
   }
 

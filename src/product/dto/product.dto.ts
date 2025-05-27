@@ -55,5 +55,5 @@ export class LastTimeSyncDto {
   @IsDate()
   @Type(() => Date)
   @IsOptional()
-  lastTimeSync: Date;
+  lastTimeSync?: Date;
 }

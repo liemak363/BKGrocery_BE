@@ -64,7 +64,7 @@ export class AuthService {
     return this.signToken(user.id, user.name);
   }
 
-  async logout(refresh_token: string, access_token: string, userId: number) {
+  async logout(access_token: string, userId: number, refresh_token?: string) {
     // Parse refresh token to get userId if refresh_token exists
     console.log('Logout called with:', {
       refresh_token,
