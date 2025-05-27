@@ -1,6 +1,81 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsInt,
+  IsNotEmpty,
+} from 'class-validator';
+
+export class SaleLogItemDto {
+  @ApiProperty({
+    description: 'Tham chiếu đến bản ghi nhập hàng',
+    required: false,
+    example: '1',
+  })
+  @IsInt()
+  @IsOptional()
+  saleLogId?: number;
+
+  @ApiProperty({
+    description: 'Tham chiếu đến sản phẩm đã bán',
+    example: '1',
+  })
+  @IsInt()
+  @IsNotEmpty()
+  productId: number;
+
+  @ApiProperty({
+    description: 'Giá bán của sản phẩm',
+    example: '5000',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
+
+  @ApiProperty({
+    description: 'Số lượng',
+    example: '3',
+  })
+  @IsInt()
+  @IsNotEmpty()
+  quantity: number;
+}
+
+export class SaleLogDto {
+  @ApiProperty({
+    description: 'Total số tiền đã bán',
+    example: '100000',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  total: number;
+
+  @ApiProperty({
+    description: 'Thời gian tạo bản ghi',
+    example: '2025-05-27T00:00:00.000Z',
+  })
+  @IsDate()
+  @IsOptional()
+  createdAt?: Date;
+
+  @ApiProperty({
+    description: 'Thời gian cập nhật bản ghi',
+    required: false,
+    example: '2025-05-27T00:00:00.000Z',
+  })
+  @IsDate()
+  @IsOptional()
+  updatedAt?: Date;
+
+  @ApiProperty({
+    description: 'Danh sách các sản phẩm đã bán',
+    type: [SaleLogItemDto],
+  })
+  @IsNotEmpty()
+  items: SaleLogItemDto[];
+}
 
 export class SaleLogQueryDto {
   @ApiProperty({

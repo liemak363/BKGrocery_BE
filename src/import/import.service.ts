@@ -3,14 +3,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ImportLogQueryDto, ImportLogDto } from './dto/import.dto';
 import { Product, ImportLog } from '@prisma/client';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SseService } from 'src/sse/sse.service';
 
 @Injectable()
 export class ImportService {
   constructor(
     private prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly sseService: SseService,
   ) {}
 
   async importProducts(dto: ImportLogDto[], userId: number) {
