@@ -13,7 +13,6 @@ export class SaleLogItemDto {
   @ApiProperty({
     description: 'Tham chiếu đến bản ghi nhập hàng',
     required: false,
-    example: '1',
   })
   @IsInt()
   @IsOptional()
@@ -47,6 +46,7 @@ export class SaleLogItemDto {
 export class SaleLogDto {
   @ApiProperty({
     description: 'Total số tiền đã bán',
+    required: false,
     example: '15000',
   })
   @IsNumber()

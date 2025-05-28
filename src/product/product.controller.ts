@@ -2,8 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  Param,
-  ParseIntPipe,
+  // Param,
+  // ParseIntPipe,
   // Post,
   Query,
   Req,
@@ -13,7 +13,7 @@ import { Request } from 'express';
 import { ProductService } from './product.service';
 import {
   // ProductDto,
-  LastTimeSyncDto,
+  ProductQueryDto,
 } from './dto';
 import { JwtGuard } from 'src/auth/guard';
 import {
@@ -21,7 +21,7 @@ import {
   ApiBearerAuth,
   // ApiBody,
   ApiResponse,
-  ApiParam,
+  // ApiParam,
 } from '@nestjs/swagger';
 
 @ApiTags('product')
@@ -60,53 +60,53 @@ export class ProductController {
   //   return this.productService.import(dto, req.user);
   // }
 
-  @Get('id/:id')
-  @ApiParam({ name: 'id', type: Number, description: 'ID sản phẩm' })
-  @ApiResponse({
-    status: 200,
-    description: 'Lấy thông tin sản phẩm theo ID',
-    schema: {
-      example: {
-        id: 1,
-        createdAt: '2025-04-27T12:00:00.000Z',
-        updatedAt: '2025-04-27T12:00:00.000Z',
-        name: 'Táo đỏ Mỹ',
-        price: 100000,
-        quantity: 10,
-        description: 'Táo đỏ nhập khẩu từ Mỹ',
-      },
-    },
-  })
-  getProductById(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-    if (!req.user || typeof req.user !== 'number') {
-      throw new Error('Invalid user or user ID');
-    }
-    return this.productService.getProductById(id, req.user);
-  }
+  // @Get('id/:id')
+  // @ApiParam({ name: 'id', type: Number, description: 'ID sản phẩm' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Lấy thông tin sản phẩm theo ID',
+  //   schema: {
+  //     example: {
+  //       id: 1,
+  //       createdAt: '2025-04-27T12:00:00.000Z',
+  //       updatedAt: '2025-04-27T12:00:00.000Z',
+  //       name: 'Táo đỏ Mỹ',
+  //       price: 100000,
+  //       quantity: 10,
+  //       description: 'Táo đỏ nhập khẩu từ Mỹ',
+  //     },
+  //   },
+  // })
+  // getProductById(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+  //   if (!req.user || typeof req.user !== 'number') {
+  //     throw new Error('Invalid user or user ID');
+  //   }
+  //   return this.productService.getProductById(id, req.user);
+  // }
 
-  @Get('name/:name')
-  @ApiParam({ name: 'name', type: String, description: 'Tên sản phẩm' })
-  @ApiResponse({
-    status: 200,
-    description: 'Lấy thông tin sản phẩm theo tên',
-    schema: {
-      example: {
-        id: 1,
-        createdAt: '2025-04-27T12:00:00.000Z',
-        updatedAt: '2025-04-27T12:00:00.000Z',
-        name: 'Táo đỏ Mỹ',
-        price: 100000,
-        quantity: 10,
-        description: 'Táo đỏ nhập khẩu từ Mỹ',
-      },
-    },
-  })
-  getProductByName(@Param('name') name: string, @Req() req: Request) {
-    if (!req.user || typeof req.user !== 'number') {
-      throw new Error('Invalid user or user ID');
-    }
-    return this.productService.getProductByName(name, req.user);
-  }
+  // @Get('name/:name')
+  // @ApiParam({ name: 'name', type: String, description: 'Tên sản phẩm' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Lấy thông tin sản phẩm theo tên',
+  //   schema: {
+  //     example: {
+  //       id: 1,
+  //       createdAt: '2025-04-27T12:00:00.000Z',
+  //       updatedAt: '2025-04-27T12:00:00.000Z',
+  //       name: 'Táo đỏ Mỹ',
+  //       price: 100000,
+  //       quantity: 10,
+  //       description: 'Táo đỏ nhập khẩu từ Mỹ',
+  //     },
+  //   },
+  // })
+  // getProductByName(@Param('name') name: string, @Req() req: Request) {
+  //   if (!req.user || typeof req.user !== 'number') {
+  //     throw new Error('Invalid user or user ID');
+  //   }
+  //   return this.productService.getProductByName(name, req.user);
+  // }
 
   @Get()
   @ApiResponse({
@@ -132,10 +132,10 @@ export class ProductController {
     status: 400,
     description: 'Invalid lastTimeSync format',
   })
-  getAllProducts(@Req() req: Request, @Query() lastTimeSync: LastTimeSyncDto) {
+  getAllProducts(@Req() req: Request, @Query() productQuery: ProductQueryDto) {
     if (!req.user || typeof req.user !== 'number') {
       throw new Error('Invalid user or user ID');
     }
-    return this.productService.getAllProducts(req.user, lastTimeSync);
+    return this.productService.getAllProducts(req.user, productQuery);
   }
 }

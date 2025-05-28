@@ -6,6 +6,7 @@ import {
   Min,
   IsOptional,
   IsDate,
+  IsInt,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -46,7 +47,7 @@ export class ProductDto {
   description?: string;
 }
 
-export class LastTimeSyncDto {
+export class ProductQueryDto {
   @ApiProperty({
     example: '2025-04-27T12:00:00.000Z',
     description: 'Thời gian đồng bộ cuối cùng (ISO 8601 format)',
@@ -56,4 +57,22 @@ export class LastTimeSyncDto {
   @Type(() => Date)
   @IsOptional()
   lastTimeSync?: Date;
+
+  @ApiProperty({
+    example: 1,
+    description: 'id sản phẩm',
+    required: false,
+  })
+  @IsInt()
+  @IsOptional()
+  id?: number;
+
+  @ApiProperty({
+    example: 'Táo đỏ Mỹ',
+    description: 'Tên sản phẩm',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  name?: string;
 }
