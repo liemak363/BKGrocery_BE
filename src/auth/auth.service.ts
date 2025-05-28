@@ -1,8 +1,8 @@
 import {
-  ConflictException,
   ForbiddenException,
   BadRequestException,
   Injectable,
+  NotAcceptableException,
 } from '@nestjs/common';
 import { AuthDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -40,7 +40,7 @@ export class AuthService {
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new ConflictException('Credentials taken');
+          throw new NotAcceptableException('Credentials taken');
         }
       }
       throw error;

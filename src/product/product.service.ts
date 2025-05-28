@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ProductDto, LastTimeSyncDto } from './dto';
+import { ProductDto, ProductQueryDto } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -76,43 +76,49 @@ export class ProductService {
     }
   }
 
-  async getProductById(id: number, userId: number) {
-    const product = await this.prisma.product.findUnique({
-      where: {
-        id_userId: {
-          // Use the composite key format
-          id,
-          userId,
+  async getAllProducts(userId: number, productQuery: ProductQueryDto) {
+    // query specific product if id is provided
+    if (productQuery.id) {
+      const product = await this.prisma.product.findUnique({
+        where: {
+          id_userId: {
+            // Use the composite key format
+            id: productQuery.id,
+            userId,
+          },
         },
-      },
-    });
+      });
 
-    if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      if (!product) {
+        throw new NotFoundException(
+          `Product with ID ${productQuery.id} not found`,
+        );
+      }
+
+      return product;
     }
 
-    return product;
-  }
-
-  async getProductByName(name: string, userId: number) {
-    const product = await this.prisma.product.findUnique({
-      where: {
-        name_userId: {
-          // Use the composite key format for the name and userId unique constraint
-          name,
-          userId,
+    // query specific product if name is provided
+    if (productQuery.name) {
+      const product = await this.prisma.product.findUnique({
+        where: {
+          name_userId: {
+            // Use the composite key format for the name and userId unique constraint
+            name: productQuery.name,
+            userId,
+          },
         },
-      },
-    });
+      });
 
-    if (!product) {
-      throw new NotFoundException(`Product with name '${name}' not found`);
+      if (!product) {
+        throw new NotFoundException(
+          `Product with name '${productQuery.name}' not found`,
+        );
+      }
+
+      return product;
     }
 
-    return product;
-  }
-
-  async getAllProducts(userId: number, lastTimeSync: LastTimeSyncDto) {
     // Define the where condition with proper typing
     const whereCondition: {
       userId: number;
@@ -122,8 +128,8 @@ export class ProductService {
     };
 
     // If lastTimeSync is provided, filter products updated after that time
-    if (lastTimeSync.lastTimeSync) {
-      const lastTimeSyncDate = lastTimeSync.lastTimeSync;
+    if (productQuery.lastTimeSync) {
+      const lastTimeSyncDate = productQuery.lastTimeSync;
       try {
         whereCondition.updatedAt = {
           gt: lastTimeSyncDate,
