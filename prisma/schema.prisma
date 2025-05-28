@@ -86,10 +86,11 @@ model SaleLog {
 model SaleLogItem {
   saleLogId Int
   productId Int
+  userId    Int
   price     Float
   quantity  Int
-  product   Product  @relation(fields: [productId, saleLogId], references: [id, userId])
-  saleLog   SaleLog  @relation(fields: [saleLogId], references: [id])
+  saleLog   SaleLog @relation(fields: [saleLogId], references: [id])
+  product   Product @relation(fields: [productId, userId], references: [id, userId])
 
   // Define a composite primary key using saleLogId, productId
   @@id([saleLogId, productId])

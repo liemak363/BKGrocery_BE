@@ -38,38 +38,41 @@ export class SaleService {
 
         // Calculate the total amount from all items
         let calculatedTotal = 0;
+        if (sale.total) calculatedTotal = sale.total;
 
-        // Validate items and check product availability
-        for (const item of sale.items) {
-          if (!item.productId || !item.price || !item.quantity) {
-            throw new BadRequestException(
-              'Product ID, price, and quantity are required for all items',
-            );
-          }
+        if (calculatedTotal <= 0) {
+          // Validate items and check product availability
+          for (const item of sale.items) {
+            if (!item.productId || !item.price || !item.quantity) {
+              throw new BadRequestException(
+                'Product ID, price, and quantity are required for all items',
+              );
+            }
 
-          // Check if product exists and has enough stock
-          const product = await tx.product.findUnique({
-            where: {
-              id_userId: {
-                id: item.productId,
-                userId,
+            // Check if product exists and has enough stock
+            const product = await tx.product.findUnique({
+              where: {
+                id_userId: {
+                  id: item.productId,
+                  userId,
+                },
               },
-            },
-          });
+            });
 
-          if (!product) {
-            throw new BadRequestException(
-              `Product with ID ${item.productId} not found`,
-            );
+            if (!product) {
+              throw new BadRequestException(
+                `Product with ID ${item.productId} not found`,
+              );
+            }
+
+            if (product.stock < item.quantity) {
+              throw new BadRequestException(
+                `Insufficient stock for product ${product.name} (ID: ${item.productId}). Available: ${product.stock}, Requested: ${item.quantity}`,
+              );
+            }
+
+            calculatedTotal += item.price * item.quantity;
           }
-
-          if (product.stock < item.quantity) {
-            throw new BadRequestException(
-              `Insufficient stock for product ${product.name} (ID: ${item.productId}). Available: ${product.stock}, Requested: ${item.quantity}`,
-            );
-          }
-
-          calculatedTotal += item.price * item.quantity;
         }
 
         // Create SaleLog with total amount
@@ -78,17 +81,20 @@ export class SaleService {
             total: calculatedTotal,
             userId,
             createdAt: sale.createdAt || now,
-            updatedAt: sale.updatedAt || now,
+            updatedAt: sale.updatedAt || sale.createdAt,
           },
         });
 
+        console.log(saleLog);
+
         // Process each item in the sale
         for (const item of sale.items) {
-          // Create SaleLogItem
+          // Create SaleLogItem with the userId to correctly reference the product
           await tx.saleLogItem.create({
             data: {
               saleLogId: saleLog.id,
               productId: item.productId,
+              userId: userId,
               price: item.price,
               quantity: item.quantity,
             },

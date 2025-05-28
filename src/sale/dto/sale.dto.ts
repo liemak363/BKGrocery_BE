@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsInt,
   IsNotEmpty,
+  Min,
 } from 'class-validator';
 
 export class SaleLogItemDto {
@@ -46,11 +47,12 @@ export class SaleLogItemDto {
 export class SaleLogDto {
   @ApiProperty({
     description: 'Total số tiền đã bán',
-    example: '100000',
+    example: '15000',
   })
   @IsNumber()
-  @IsNotEmpty()
-  total: number;
+  @IsOptional()
+  @Min(0)
+  total?: number;
 
   @ApiProperty({
     description: 'Thời gian tạo bản ghi',
