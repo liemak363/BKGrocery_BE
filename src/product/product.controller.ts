@@ -4,19 +4,22 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Post,
+  // Post,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ProductService } from './product.service';
-import { ProductDto, LastTimeSyncDto } from './dto';
+import {
+  // ProductDto,
+  LastTimeSyncDto,
+} from './dto';
 import { JwtGuard } from 'src/auth/guard';
 import {
   ApiTags,
   ApiBearerAuth,
-  ApiBody,
+  // ApiBody,
   ApiResponse,
   ApiParam,
 } from '@nestjs/swagger';
@@ -28,34 +31,34 @@ import {
 export class ProductController {
   constructor(private productService: ProductService) {}
 
-  @Post('import')
-  @ApiBody({ type: ProductDto })
-  @ApiResponse({
-    status: 201,
-    description:
-      'Tạo mới sản phẩm nếu không tìm thấy theo id hoặc cập nhật sản phẩm thành công',
-    schema: {
-      example: {
-        message: 'Product imported successfully',
-        product: {
-          id: 1,
-          createdAt: '2025-04-27T12:00:00.000Z',
-          updatedAt: '2025-04-27T12:00:00.000Z',
-          name: 'Táo đỏ Mỹ',
-          price: 100000,
-          quantity: 10,
-          description: 'Táo đỏ nhập khẩu từ Mỹ',
-        },
-      },
-    },
-  })
-  import(@Body() dto: ProductDto, @Req() req: Request) {
-    console.log('Request Headers:', req.user);
-    if (!req.user || typeof req.user !== 'number') {
-      throw new Error('Invalid user or user ID');
-    }
-    return this.productService.import(dto, req.user);
-  }
+  // @Post('import')
+  // @ApiBody({ type: ProductDto })
+  // @ApiResponse({
+  //   status: 201,
+  //   description:
+  //     'Tạo mới sản phẩm nếu không tìm thấy theo id hoặc cập nhật sản phẩm thành công',
+  //   schema: {
+  //     example: {
+  //       message: 'Product imported successfully',
+  //       product: {
+  //         id: 1,
+  //         createdAt: '2025-04-27T12:00:00.000Z',
+  //         updatedAt: '2025-04-27T12:00:00.000Z',
+  //         name: 'Táo đỏ Mỹ',
+  //         price: 100000,
+  //         quantity: 10,
+  //         description: 'Táo đỏ nhập khẩu từ Mỹ',
+  //       },
+  //     },
+  //   },
+  // })
+  // import(@Body() dto: ProductDto, @Req() req: Request) {
+  //   console.log('Request Headers:', req.user);
+  //   if (!req.user || typeof req.user !== 'number') {
+  //     throw new Error('Invalid user or user ID');
+  //   }
+  //   return this.productService.import(dto, req.user);
+  // }
 
   @Get('id/:id')
   @ApiParam({ name: 'id', type: Number, description: 'ID sản phẩm' })
