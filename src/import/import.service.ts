@@ -107,7 +107,7 @@ export class ImportService {
       }
 
       // scan updatedProducts to retain the latest updatedAt corresponding to each product
-      const productMap = new Map<number, Product>();
+      const productMap = new Map<string, Product>();
       updatedProducts.forEach((p) => {
         const existing = productMap.get(p.id);
         if (!existing || p.updatedAt > existing.updatedAt) {

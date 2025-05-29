@@ -121,7 +121,7 @@ export class SaleService {
       }
 
       // Remove duplicates and keep only the latest version of each product
-      const productMap = new Map<number, Product>();
+      const productMap = new Map<string, Product>();
       updatedProducts.forEach((p) => {
         const existing = productMap.get(p.id);
         if (!existing || p.updatedAt > existing.updatedAt) {
