@@ -7,6 +7,7 @@ import {
   IsInt,
   IsNotEmpty,
   Min,
+  IsString,
 } from 'class-validator';
 
 export class SaleLogItemDto {
@@ -22,9 +23,9 @@ export class SaleLogItemDto {
     description: 'Tham chiếu đến sản phẩm đã bán',
     example: '1',
   })
-  @IsInt()
+  @IsString()
   @IsNotEmpty()
-  productId: number;
+  productId: string;
 
   @ApiProperty({
     description: 'Giá bán của sản phẩm',

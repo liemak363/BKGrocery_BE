@@ -6,16 +6,15 @@ import {
   Min,
   IsOptional,
   IsDate,
-  IsInt,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class ProductDto {
   @ApiProperty({ example: 1, description: 'ID sản phẩm' })
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id: number;
+  id: string;
 
   @ApiProperty({ example: 'Táo đỏ Mỹ', description: 'Tên sản phẩm' })
   @IsString()
@@ -59,13 +58,13 @@ export class ProductQueryDto {
   lastTimeSync?: Date;
 
   @ApiProperty({
-    example: 1,
+    example: '1',
     description: 'id sản phẩm',
     required: false,
   })
-  @IsInt()
+  @IsString()
   @IsOptional()
-  id?: number;
+  id?: string;
 
   @ApiProperty({
     example: 'Táo đỏ Mỹ',

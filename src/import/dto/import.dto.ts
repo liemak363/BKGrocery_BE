@@ -68,11 +68,11 @@ export class ImportLogDto {
 
   @ApiProperty({
     description: 'productId',
-    example: 1,
+    example: '1',
   })
-  @IsInt()
+  @IsString()
   @IsNotEmpty()
-  productId: number;
+  productId: string;
 }
 
 export class ImportLogQueryDto {
