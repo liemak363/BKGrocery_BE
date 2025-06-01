@@ -68,6 +68,7 @@ export class ImportController {
             },
           },
         ],
+        count: 1,
       },
     },
   })
