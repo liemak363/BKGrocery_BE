@@ -174,8 +174,14 @@ export class ImportService {
       take: queryDto.limit,
     });
 
+    // count total records
+    const totalCount = await this.prisma.importLog.count({
+      where,
+    });
+
     return {
       data: importLogs,
+      count: totalCount,
     };
   }
 }

@@ -168,8 +168,14 @@ export class SaleService {
       take: queryDto.limit,
     });
 
+    // count total records - no pagination
+    const totalCount = await this.prisma.saleLog.count({
+      where,
+    });
+
     return {
       data: saleLogs,
+      count: totalCount,
     };
   }
 
