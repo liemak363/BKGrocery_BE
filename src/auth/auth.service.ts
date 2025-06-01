@@ -122,7 +122,7 @@ export class AuthService {
     }
 
     const secretRefresh = this.config.get<string>('JWT_SECRET_REFRESH');
-    let decoded: { sub: number; name: string };
+    let decoded: { exp?: number; sub: number; name: string };
     try {
       // Verify the refresh token
       decoded = await this.jwt.verifyAsync<{
@@ -143,6 +143,13 @@ export class AuthService {
 
     if (isBlacklisted) {
       throw new ForbiddenException('Refresh token is blacklisted');
+    }
+
+    // check the exp of the refresh token, exp < 2 days -> return new refresh token
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    const expTime = decoded.exp; // Expiration time from the decoded token
+    if (expTime && expTime - currentTime < 2 * 24 * 60 * 60) {
+      return this.signToken(decoded.sub, decoded.name);
     }
 
     return this.signNewAccessToken(decoded.sub, decoded.name);

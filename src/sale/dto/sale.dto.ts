@@ -12,6 +12,15 @@ import {
 
 export class SaleLogItemDto {
   @ApiProperty({
+    description: 'tên sản phẩm đã bán',
+    required: false,
+    example: '1',
+  })
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiProperty({
     description: 'Tham chiếu đến bản ghi nhập hàng',
     required: false,
   })
