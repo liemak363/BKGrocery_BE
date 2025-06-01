@@ -121,4 +121,14 @@ export class SaleLogQueryDto {
   @Type(() => Number)
   @IsOptional()
   limit?: number = 10;
+
+  @ApiProperty({
+    description: 'id của bản ghi bán hàng',
+    required: false,
+    example: 1,
+  })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  saleLogId?: number;
 }
