@@ -144,6 +144,48 @@ export class SaleService {
   }
 
   async getSaleLog(userId: number, queryDto: SaleLogQueryDto) {
+    if (queryDto.saleLogId) {
+      // Kiểm tra xem SaleLog có tồn tại không và thuộc về user hiện tại
+      const saleLog = await this.prisma.saleLog.findUnique({
+        where: {
+          id: queryDto.saleLogId,
+          userId: userId,
+        },
+      });
+
+      if (!saleLog) {
+        throw new NotFoundException('Sale log not found');
+      }
+
+      // Truy vấn các item của SaleLog kèm theo thông tin sản phẩm
+      const saleLogItems = await this.prisma.saleLogItem.findMany({
+        where: {
+          saleLogId: queryDto.saleLogId,
+        },
+        include: {
+          product: {
+            select: {
+              name: true,
+              description: true,
+            },
+          },
+        },
+      });
+
+      return {
+        saleLog: saleLog,
+        items: saleLogItems.map((item) => ({
+          saleLogId: item.saleLogId,
+          productId: item.productId,
+          price: item.price,
+          quantity: item.quantity,
+          productName: item.product.name,
+          productDescription: item.product.description,
+          total: item.price * item.quantity,
+        })),
+      };
+    }
+
     // init where clause
     const where: {
       userId: number;
@@ -176,48 +218,6 @@ export class SaleService {
     return {
       data: saleLogs,
       count: totalCount,
-    };
-  }
-
-  async getSaleLogItems(userId: number, saleLogId: number) {
-    // Kiểm tra xem SaleLog có tồn tại không và thuộc về user hiện tại
-    const saleLog = await this.prisma.saleLog.findUnique({
-      where: {
-        id: saleLogId,
-        userId: userId,
-      },
-    });
-
-    if (!saleLog) {
-      throw new NotFoundException('Sale log not found');
-    }
-
-    // Truy vấn các item của SaleLog kèm theo thông tin sản phẩm
-    const saleLogItems = await this.prisma.saleLogItem.findMany({
-      where: {
-        saleLogId: saleLogId,
-      },
-      include: {
-        product: {
-          select: {
-            name: true,
-            description: true,
-          },
-        },
-      },
-    });
-
-    return {
-      saleLog: saleLog,
-      items: saleLogItems.map((item) => ({
-        saleLogId: item.saleLogId,
-        productId: item.productId,
-        price: item.price,
-        quantity: item.quantity,
-        productName: item.product.name,
-        productDescription: item.product.description,
-        total: item.price * item.quantity,
-      })),
     };
   }
 }
