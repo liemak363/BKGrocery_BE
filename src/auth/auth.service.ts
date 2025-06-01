@@ -36,7 +36,10 @@ export class AuthService {
         },
       });
 
-      return this.signToken(user.id, user.name);
+      return {
+        name: user.name,
+        id: user.id,
+      };
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -130,10 +133,11 @@ export class AuthService {
         name: string;
       }>(refresh_token, {
         secret: secretRefresh,
+        ignoreExpiration: false, // Ensure we check the expiration
       });
     } catch (error) {
       console.error('Error verifying refresh token:', error);
-      throw new BadRequestException('Invalid refresh token');
+      throw new ForbiddenException('Invalid refresh token');
     }
 
     // Check if the refresh token is blacklisted
