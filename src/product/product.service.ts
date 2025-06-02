@@ -98,25 +98,22 @@ export class ProductService {
       return product;
     }
 
-    // query specific product if name is provided
+    // query products if name is provided (search by name containing the query)
     if (productQuery.name) {
-      const product = await this.prisma.product.findUnique({
+      const products = await this.prisma.product.findMany({
         where: {
-          name_userId: {
-            // Use the composite key format for the name and userId unique constraint
-            name: productQuery.name,
-            userId,
+          userId,
+          name: {
+            contains: productQuery.name,
+            mode: 'insensitive', // Case-insensitive search
           },
+        },
+        orderBy: {
+          updatedAt: 'desc',
         },
       });
 
-      if (!product) {
-        throw new NotFoundException(
-          `Product with name '${productQuery.name}' not found`,
-        );
-      }
-
-      return product;
+      return products;
     }
 
     // Define the where condition with proper typing
