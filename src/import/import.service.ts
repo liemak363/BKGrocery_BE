@@ -17,6 +17,24 @@ export class ImportService {
       throw new BadRequestException('Invalid import data');
     }
 
+    // Check for duplicate names within the same request
+    const nameSet = new Set<string>();
+    const idSet = new Set<string>();
+    for (const item of dto) {
+      if (nameSet.has(item.name)) {
+        throw new BadRequestException(
+          `Duplicate product name "${item.name}" found in the same import request`,
+        );
+      }
+      if (idSet.has(item.productId)) {
+        throw new BadRequestException(
+          `Duplicate product ID "${item.productId}" found in the same import request`,
+        );
+      }
+      nameSet.add(item.name);
+      idSet.add(item.productId);
+    }
+
     // Use a transaction to ensure all operations are atomic
     return this.prisma.$transaction(async (tx) => {
       const updatedProducts: Product[] = [];
@@ -34,7 +52,7 @@ export class ImportService {
         // Set quantity to 0 if not provided
         const quantity = item.quantity ?? 0;
 
-        // Check if the product already exists
+        // Check if the product already exists by ID
         const existingProduct = await tx.product.findUnique({
           where: {
             id_userId: {
@@ -43,6 +61,26 @@ export class ImportService {
             },
           },
         });
+
+        // Check if another product with the same name already exists for this user
+        const existingProductByName = await tx.product.findUnique({
+          where: {
+            name_userId: {
+              name: item.name,
+              userId,
+            },
+          },
+        });
+
+        // If we find a product with the same name but different ID, throw error
+        if (
+          existingProductByName &&
+          existingProductByName.id !== item.productId
+        ) {
+          throw new BadRequestException(
+            `Product name "${item.name}" already exists for this user with different ID. Existing product ID: ${existingProductByName.id}, provided ID: ${item.productId}`,
+          );
+        }
 
         // Determine timestamps
         const now = new Date();
